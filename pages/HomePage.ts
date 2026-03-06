@@ -9,6 +9,8 @@ export class HomePage {
   readonly logoutLink: Locator;
   readonly recommendedItemsHeading: Locator;
   readonly firstRecommendedAddToCartButton: Locator;
+  readonly scrollUpButton: Locator;
+  readonly fullFledgedText: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -20,6 +22,8 @@ export class HomePage {
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
     this.recommendedItemsHeading = page.getByRole('heading', { name: 'recommended items' });
     this.firstRecommendedAddToCartButton = page.locator('.recommended_items .add-to-cart').first();
+    this.scrollUpButton = page.locator('#scrollUp');
+    this.fullFledgedText = page.getByRole('heading', { name: 'Full-Fledged practice website' });
   }
 
   // Ações (Steps)
@@ -58,5 +62,21 @@ export class HomePage {
 
   async addRecommendedProductToCart() {
     await this.firstRecommendedAddToCartButton.click();
+  }
+
+  async scrollToBottom() {
+    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  }
+
+  async scrollToTop() {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+  }
+
+  async clickScrollUpButton() {
+    await this.scrollUpButton.click();
+  }
+
+  async verifyFullFledgedTextVisible() {
+    await expect(this.fullFledgedText).toBeVisible();
   }
 }
