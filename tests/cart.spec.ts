@@ -1,6 +1,8 @@
 import { test, expect } from '../support/fixtures';
 import { ProductsPage } from '../pages/ProductsPage';
 import { CartPage } from '../pages/CartPage';
+import { AccountPage } from '../pages/AccountPage';
+import { generateRandomUser } from '../support/helpers';
 
 test.describe('Cart', () => {
 
@@ -62,12 +64,51 @@ test.describe('Cart', () => {
     await cartPage.verifyProductRemoved('Blue Top');
   });
 
-  test('Test Case 20: Search Products and Verify Cart After Login', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 20: Search Products and Verify Cart After Login', async ({ page, homePage, loginPage, signupPage }) => {
+    const productsPage = new ProductsPage(page);
+    const cartPage = new CartPage(page);
+    const accountPage = new AccountPage(page);
+    const user = generateRandomUser();
+
+    // Pre-requisite: Create a user to login with later
+    await homePage.navigate();
+    await homePage.clickSignupLogin();
+    await loginPage.initiateSignup(user.firstName, user.email);
+    await signupPage.fillAccountDetails(user.password);
+    await signupPage.fillAddressDetails(user.firstName, user.lastName, user.company, user.address, user.state, user.city, user.zipcode, user.mobileNumber);
+    await signupPage.submitAccount();
+    await accountPage.clickContinue();
+    await homePage.clickLogout();
+
+    // Test Steps
+    await homePage.navigate();
+    await productsPage.navigateToProducts();
+    await productsPage.verifyAllProductsPageLoaded();
+
+    await productsPage.searchProduct('Jeans');
+    await productsPage.verifySearchedProductsVisible();
+
+    await productsPage.addAllVisibleProductsToCart();
+
+    await homePage.clickCart();
+    await cartPage.verifyProductInCart('Soft Stretch Jeans', 'Rs. 799', '1', 'Rs. 799');
+
+    await homePage.clickSignupLogin();
+    await loginPage.login(user.email, user.password);
+
+    await homePage.clickCart();
+    await cartPage.verifyProductInCart('Soft Stretch Jeans', 'Rs. 799', '1', 'Rs. 799');
   });
 
-  test('Test Case 22: Add to cart from Recommended items', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 22: Add to cart from Recommended items', async ({ page, homePage }) => {
+    const cartPage = new CartPage(page);
+    const productsPage = new ProductsPage(page);
+
+    await homePage.navigate();
+    await homePage.verifyRecommendedItemsVisible();
+    await homePage.addRecommendedProductToCart();
+    await productsPage.clickViewCart();
+    await cartPage.verifyProductInCart('Blue Top', 'Rs. 500', '1', 'Rs. 500');
   });
 
 });

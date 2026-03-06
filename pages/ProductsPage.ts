@@ -19,6 +19,9 @@ export class ProductsPage {
   readonly viewCartLink: Locator;
   readonly quantityInput: Locator;
   readonly addToCartButton: Locator;
+  readonly categoriesSidebar: Locator;
+  readonly brandsSidebar: Locator;
+  readonly categoryTitle: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -39,6 +42,9 @@ export class ProductsPage {
     this.viewCartLink = page.getByRole('link', { name: 'View Cart' });
     this.quantityInput = page.locator('#quantity');
     this.addToCartButton = page.getByRole('button', { name: 'Add to cart' });
+    this.categoriesSidebar = page.locator('#accordian');
+    this.brandsSidebar = page.locator('.brands_products');
+    this.categoryTitle = page.locator('.features_items .title');
   }
 
   async navigateToProducts() {
@@ -94,5 +100,37 @@ export class ProductsPage {
 
   async addToCart() {
     await this.addToCartButton.click();
+  }
+
+  async verifyCategoriesSidebarVisible() {
+    await expect(this.categoriesSidebar).toBeVisible();
+  }
+
+  async clickCategory(category: string) {
+    await this.categoriesSidebar.getByText(category, { exact: true }).click();
+  }
+
+  async clickSubCategory(subCategory: string) {
+    await this.categoriesSidebar.getByRole('link', { name: subCategory }).click();
+  }
+
+  async verifyCategoryTitle(title: string) {
+    await expect(this.categoryTitle).toHaveText(title, { ignoreCase: true });
+  }
+
+  async verifyBrandsSidebarVisible() {
+    await expect(this.brandsSidebar).toBeVisible();
+  }
+
+  async clickBrand(brandName: string) {
+    await this.brandsSidebar.getByRole('link', { name: brandName }).click();
+  }
+
+  async addAllVisibleProductsToCart() {
+    const count = await this.productsList.locator('.col-sm-4').count();
+    for (let i = 0; i < count; i++) {
+      await this.hoverAndAddProduct(i);
+      await this.clickContinueShopping();
+    }
   }
 }

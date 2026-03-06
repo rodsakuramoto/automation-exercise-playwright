@@ -31,12 +31,33 @@ test.describe('Products', () => {
     await productsPage.verifySearchedProductsVisible();
   });
 
-  test('Test Case 18: View Category Products', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 18: View Category Products', async ({ page, homePage }) => {
+    const productsPage = new ProductsPage(page);
+
+    await homePage.navigate();
+    await productsPage.verifyCategoriesSidebarVisible();
+
+    await productsPage.clickCategory('Women');
+    await productsPage.clickSubCategory('Dress');
+    await productsPage.verifyCategoryTitle('WOMEN - DRESS PRODUCTS');
+
+    await productsPage.clickCategory('Men');
+    await productsPage.clickSubCategory('Tshirts');
+    await productsPage.verifyCategoryTitle('MEN - TSHIRTS PRODUCTS');
   });
 
-  test('Test Case 19: View & Cart Brand Products', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 19: View & Cart Brand Products', async ({ page, homePage }) => {
+    const productsPage = new ProductsPage(page);
+
+    await homePage.navigate();
+    await productsPage.navigateToProducts();
+    await productsPage.verifyBrandsSidebarVisible();
+
+    await productsPage.clickBrand('Polo');
+    await productsPage.verifyCategoryTitle('BRAND - POLO PRODUCTS');
+
+    await productsPage.clickBrand('H&M');
+    await productsPage.verifyCategoryTitle('BRAND - H&M PRODUCTS');
   });
 
   test('Test Case 21: Add review on product', async ({ page }) => {

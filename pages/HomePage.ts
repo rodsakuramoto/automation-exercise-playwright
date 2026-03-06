@@ -7,6 +7,8 @@ export class HomePage {
   readonly cartLink: Locator;
   readonly deleteAccountLink: Locator;
   readonly logoutLink: Locator;
+  readonly recommendedItemsHeading: Locator;
+  readonly firstRecommendedAddToCartButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -16,6 +18,8 @@ export class HomePage {
     this.cartLink = page.getByRole('link', { name: ' Cart', exact: true });
     this.deleteAccountLink = page.getByRole('link', { name: 'Delete Account' });
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
+    this.recommendedItemsHeading = page.getByRole('heading', { name: 'recommended items' });
+    this.firstRecommendedAddToCartButton = page.locator('.recommended_items .add-to-cart').first();
   }
 
   // Ações (Steps)
@@ -45,5 +49,14 @@ export class HomePage {
 
   async verifyLoggedInAs(username: string) {
     await expect(this.page.getByText(`Logged in as ${username}`)).toBeVisible();
+  }
+
+  async verifyRecommendedItemsVisible() {
+    await this.recommendedItemsHeading.scrollIntoViewIfNeeded();
+    await expect(this.recommendedItemsHeading).toBeVisible();
+  }
+
+  async addRecommendedProductToCart() {
+    await this.firstRecommendedAddToCartButton.click();
   }
 }
