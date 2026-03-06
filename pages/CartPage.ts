@@ -33,4 +33,14 @@ export class CartPage {
   async clickRegisterLoginModal() {
     await this.registerLoginModalLink.click();
   }
+
+  async removeProduct(productName: string) {
+    const row = this.page.locator('tr', { hasText: productName });
+    await row.locator('.cart_quantity_delete').click();
+  }
+
+  async verifyProductRemoved(productName: string) {
+    const row = this.page.locator('tr', { hasText: productName });
+    await expect(row).toBeHidden();
+  }
 }

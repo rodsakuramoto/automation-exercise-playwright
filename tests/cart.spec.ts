@@ -45,8 +45,21 @@ test.describe('Cart', () => {
     await cartPage.verifyProductInCart('Blue Top', 'Rs. 500', '4', 'Rs. 2000');
   });
 
-  test('Test Case 17: Remove Products From Cart', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 17: Remove Products From Cart', async ({ page, homePage }) => {
+    const productsPage = new ProductsPage(page);
+    const cartPage = new CartPage(page);
+
+    await homePage.navigate();
+    await expect(page).toHaveTitle(/Automation Exercise/);
+
+    await productsPage.hoverAndAddProduct(0);
+    await productsPage.clickContinueShopping();
+
+    await homePage.clickCart();
+    await cartPage.verifyCartPageLoaded();
+
+    await cartPage.removeProduct('Blue Top');
+    await cartPage.verifyProductRemoved('Blue Top');
   });
 
   test('Test Case 20: Search Products and Verify Cart After Login', async ({ page }) => {
