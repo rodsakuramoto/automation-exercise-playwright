@@ -1,5 +1,6 @@
 import { test, expect } from '../support/fixtures';
 import { ProductsPage } from '../pages/ProductsPage';
+import { generateRandomUser } from '../support/helpers';
 
 test.describe('Products', () => {
 
@@ -60,8 +61,19 @@ test.describe('Products', () => {
     await productsPage.verifyCategoryTitle('BRAND - H&M PRODUCTS');
   });
 
-  test('Test Case 21: Add review on product', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 21: Add review on product', async ({ page, homePage }) => {
+    const productsPage = new ProductsPage(page);
+    const user = generateRandomUser();
+
+    await homePage.navigate();
+    await productsPage.navigateToProducts();
+    await productsPage.verifyAllProductsPageLoaded();
+
+    await productsPage.viewFirstProduct();
+    await productsPage.verifyReviewSectionVisible();
+
+    await productsPage.submitReview(user.firstName, user.email, 'This is a test review for automation.');
+    await productsPage.verifyReviewSuccessMessage();
   });
 
 });

@@ -22,6 +22,12 @@ export class ProductsPage {
   readonly categoriesSidebar: Locator;
   readonly brandsSidebar: Locator;
   readonly categoryTitle: Locator;
+  readonly reviewHeading: Locator;
+  readonly reviewNameInput: Locator;
+  readonly reviewEmailInput: Locator;
+  readonly reviewInput: Locator;
+  readonly reviewSubmitButton: Locator;
+  readonly reviewSuccessMessage: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -45,6 +51,12 @@ export class ProductsPage {
     this.categoriesSidebar = page.locator('#accordian');
     this.brandsSidebar = page.locator('.brands_products');
     this.categoryTitle = page.locator('.features_items .title');
+    this.reviewHeading = page.getByRole('link', { name: 'Write Your Review' });
+    this.reviewNameInput = page.locator('#name');
+    this.reviewEmailInput = page.locator('#email');
+    this.reviewInput = page.locator('#review');
+    this.reviewSubmitButton = page.locator('#button-review');
+    this.reviewSuccessMessage = page.getByText('Thank you for your review.');
   }
 
   async navigateToProducts() {
@@ -132,5 +144,20 @@ export class ProductsPage {
       await this.hoverAndAddProduct(i);
       await this.clickContinueShopping();
     }
+  }
+
+  async verifyReviewSectionVisible() {
+    await expect(this.reviewHeading).toBeVisible();
+  }
+
+  async submitReview(name: string, email: string, review: string) {
+    await this.reviewNameInput.fill(name);
+    await this.reviewEmailInput.fill(email);
+    await this.reviewInput.fill(review);
+    await this.reviewSubmitButton.click();
+  }
+
+  async verifyReviewSuccessMessage() {
+    await expect(this.reviewSuccessMessage).toBeVisible();
   }
 }
