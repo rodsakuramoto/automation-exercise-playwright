@@ -18,8 +18,17 @@ test.describe('Products', () => {
     await productsPage.verifyProductDetailsVisible();
   });
 
-  test('Test Case 9: Search Product', async ({ page }) => {
-    // TODO: Implement test
+  test('Test Case 9: Search Product', async ({ page, homePage }) => {
+    const productsPage = new ProductsPage(page);
+
+    await homePage.navigate();
+    await expect(page).toHaveTitle(/Automation Exercise/);
+
+    await productsPage.navigateToProducts();
+    await productsPage.verifyAllProductsPageLoaded();
+
+    await productsPage.searchProduct('Tshirt');
+    await productsPage.verifySearchedProductsVisible();
   });
 
   test('Test Case 18: View Category Products', async ({ page }) => {

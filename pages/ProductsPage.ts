@@ -12,6 +12,9 @@ export class ProductsPage {
   readonly productAvailability: Locator;
   readonly productCondition: Locator;
   readonly productBrand: Locator;
+  readonly searchInput: Locator;
+  readonly searchButton: Locator;
+  readonly searchedProductsHeading: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -25,6 +28,9 @@ export class ProductsPage {
     this.productAvailability = page.getByText('Availability:');
     this.productCondition = page.getByText('Condition:');
     this.productBrand = page.getByText('Brand:');
+    this.searchInput = page.locator('#search_product');
+    this.searchButton = page.locator('#submit_search');
+    this.searchedProductsHeading = page.getByRole('heading', { name: 'Searched Products' });
   }
 
   async navigateToProducts() {
@@ -48,5 +54,15 @@ export class ProductsPage {
     await expect(this.productAvailability).toBeVisible();
     await expect(this.productCondition).toBeVisible();
     await expect(this.productBrand).toBeVisible();
+  }
+
+  async searchProduct(productName: string) {
+    await this.searchInput.fill(productName);
+    await this.searchButton.click();
+  }
+
+  async verifySearchedProductsVisible() {
+    await expect(this.searchedProductsHeading).toBeVisible();
+    await expect(this.productsList).toBeVisible();
   }
 }
