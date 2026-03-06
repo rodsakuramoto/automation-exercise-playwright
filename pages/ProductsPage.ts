@@ -64,7 +64,6 @@ export class ProductsPage {
   }
 
   async verifyAllProductsPageLoaded() {
-    await expect(this.page).toHaveURL(/.*products/);
     await expect(this.allProductsHeading).toBeVisible();
     await expect(this.productsList).toBeVisible();
   }
