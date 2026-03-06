@@ -15,6 +15,10 @@ export class ProductsPage {
   readonly searchInput: Locator;
   readonly searchButton: Locator;
   readonly searchedProductsHeading: Locator;
+  readonly continueShoppingButton: Locator;
+  readonly viewCartLink: Locator;
+  readonly quantityInput: Locator;
+  readonly addToCartButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -31,6 +35,10 @@ export class ProductsPage {
     this.searchInput = page.locator('#search_product');
     this.searchButton = page.locator('#submit_search');
     this.searchedProductsHeading = page.getByRole('heading', { name: 'Searched Products' });
+    this.continueShoppingButton = page.getByRole('button', { name: 'Continue Shopping' });
+    this.viewCartLink = page.getByRole('link', { name: 'View Cart' });
+    this.quantityInput = page.locator('#quantity');
+    this.addToCartButton = page.getByRole('button', { name: 'Add to cart' });
   }
 
   async navigateToProducts() {
@@ -64,5 +72,27 @@ export class ProductsPage {
   async verifySearchedProductsVisible() {
     await expect(this.searchedProductsHeading).toBeVisible();
     await expect(this.productsList).toBeVisible();
+  }
+
+  async hoverAndAddProduct(index: number) {
+    const productCard = this.productsList.locator('.col-sm-4').nth(index);
+    await productCard.hover();
+    await productCard.locator('.product-overlay .add-to-cart').click();
+  }
+
+  async clickContinueShopping() {
+    await this.continueShoppingButton.click();
+  }
+
+  async clickViewCart() {
+    await this.viewCartLink.click();
+  }
+
+  async setQuantity(quantity: string) {
+    await this.quantityInput.fill(quantity);
+  }
+
+  async addToCart() {
+    await this.addToCartButton.click();
   }
 }
