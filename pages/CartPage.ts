@@ -4,11 +4,13 @@ export class CartPage {
   readonly page: Page;
   readonly cartTable: Locator;
   readonly proceedToCheckoutButton: Locator;
+  readonly registerLoginModalLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.cartTable = page.locator('#cart_info_table');
     this.proceedToCheckoutButton = page.getByText('Proceed To Checkout');
+    this.registerLoginModalLink = page.getByRole('link', { name: 'Register / Login' });
   }
 
   async verifyCartPageLoaded() {
@@ -22,5 +24,13 @@ export class CartPage {
     await expect(row.locator('.cart_price')).toHaveText(price);
     await expect(row.locator('.cart_quantity button')).toHaveText(quantity);
     await expect(row.locator('.cart_total')).toHaveText(total);
+  }
+
+  async proceedToCheckout() {
+    await this.proceedToCheckoutButton.click();
+  }
+
+  async clickRegisterLoginModal() {
+    await this.registerLoginModalLink.click();
   }
 }
