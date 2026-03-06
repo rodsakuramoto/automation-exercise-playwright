@@ -121,8 +121,21 @@ export class ProductsPage {
     await this.categoriesSidebar.getByText(category, { exact: true }).click();
   }
 
+  async handleGoogleVignette() {
+    try {
+      await this.page.waitForURL(/.*#google_vignette/, { timeout: 1000 });
+      await this.page.goBack();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async clickSubCategory(subCategory: string) {
     await this.categoriesSidebar.getByRole('link', { name: subCategory }).click();
+    if (await this.handleGoogleVignette()) {
+      await this.categoriesSidebar.getByRole('link', { name: subCategory }).click();
+    }
   }
 
   async verifyCategoryTitle(title: string) {
