@@ -4,6 +4,22 @@ import { generateRandomUser } from '../support/helpers';
 
 test.describe('Products', () => {
 
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (
+        url.includes('googleads') ||
+        url.includes('googlesyndication') ||
+        url.includes('doubleclick') ||
+        url.includes('adservice.google')
+      ) {
+        route.abort();
+      } else {
+        route.continue();
+      }
+    });
+  });
+
   test('Test Case 8: Verify All Products and product detail page', async ({ page, homePage }) => {
     const productsPage = new ProductsPage(page);
 
