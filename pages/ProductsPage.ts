@@ -60,10 +60,7 @@ export class ProductsPage {
   }
 
   async navigateToProducts() {
-    await this.productsLink.click();
-    if (await this.handleGoogleVignette()) {
-      await this.productsLink.click();
-    }
+    await this.clickAndHandleVignette(this.productsLink);
   }
 
   async verifyAllProductsPageLoaded() {
@@ -134,11 +131,15 @@ export class ProductsPage {
     }
   }
 
-  async clickSubCategory(subCategory: string) {
-    await this.categoriesSidebar.getByRole('link', { name: subCategory }).click();
+  async clickAndHandleVignette(element: Locator) {
+    await element.click();
     if (await this.handleGoogleVignette()) {
-      await this.categoriesSidebar.getByRole('link', { name: subCategory }).click();
+      await element.click();
     }
+  }
+
+  async clickSubCategory(subCategory: string) {
+    await this.clickAndHandleVignette(this.categoriesSidebar.getByRole('link', { name: subCategory }));
   }
 
   async verifyCategoryTitle(title: string) {
