@@ -61,6 +61,9 @@ export class ProductsPage {
 
   async navigateToProducts() {
     await this.productsLink.click();
+    if (await this.handleGoogleVignette()) {
+      await this.productsLink.click();
+    }
   }
 
   async verifyAllProductsPageLoaded() {
