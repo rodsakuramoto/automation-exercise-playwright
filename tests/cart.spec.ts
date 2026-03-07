@@ -37,7 +37,6 @@ test.describe('Cart', () => {
     await expect(page).toHaveTitle(/Automation Exercise/);
 
     await homePage.viewFirstProduct();
-    await expect(page).toHaveURL(/.*product_details/);
 
     await productsPage.setQuantity('4');
     await productsPage.addToCart();

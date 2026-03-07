@@ -217,6 +217,7 @@ test.describe('Checkout', () => {
     await paymentPage.verifySuccessMessage();
 
     const downloadPromise = page.waitForEvent('download');
+    await page.waitForTimeout(1000);
     await paymentPage.clickDownloadInvoice();
     const download = await downloadPromise;
     await download.path(); // Wait for download to complete

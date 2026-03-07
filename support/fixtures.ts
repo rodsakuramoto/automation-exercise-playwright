@@ -3,17 +3,15 @@ import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { SignupPage } from '../pages/SignupPage';
 
-// 1. Declaramos os tipos das nossas Fixtures
 type MyFixtures = {
   homePage: HomePage;
   loginPage: LoginPage;
   signupPage: SignupPage;
+  blockAds: void;
 };
 
-// 2. Estendemos o teste base do Playwright ensinando ele a criar as páginas
 export const test = baseTest.extend<MyFixtures>({
   homePage: async ({ page }, use) => {
-    // Instancia a página e entrega (usa) no teste
     await use(new HomePage(page));
   },
 
@@ -23,8 +21,24 @@ export const test = baseTest.extend<MyFixtures>({
 
   signupPage: async ({ page }, use) => {
     await use(new SignupPage(page));
-  }
+  },
+
+  blockAds: [async ({ page }, use) => {
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (
+        url.includes('googleads') ||
+        url.includes('googlesyndication') ||
+        url.includes('doubleclick') ||
+        url.includes('adservice.google')
+      ) {
+        route.abort();
+      } else {
+        route.continue();
+      }
+    });
+    await use();
+  }, { auto: true }]
 });
 
-// Exportamos o expect para usarmos no arquivo de teste
 export { expect } from '@playwright/test';

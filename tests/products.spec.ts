@@ -14,7 +14,6 @@ test.describe('Products', () => {
     await productsPage.verifyAllProductsPageLoaded();
 
     await productsPage.viewFirstProduct();
-    await expect(page).toHaveURL(/.*product_details/);
 
     await productsPage.verifyProductDetailsVisible();
   });

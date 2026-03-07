@@ -42,6 +42,7 @@ export class PaymentPage {
   }
 
   async clickDownloadInvoice() {
+    await this.page.waitForTimeout(1000);
     await this.downloadInvoiceButton.click();
   }
 
