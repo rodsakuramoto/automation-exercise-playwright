@@ -31,7 +31,7 @@ export class ProductsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.productsLink = page.getByRole('link', { name: 'Products' });
+    this.productsLink = page.locator('.navbar-nav a[href*="/products"]').first();
     this.allProductsHeading = page.getByRole('heading', { name: 'All Products' });
     this.productsList = page.locator('.features_items');
     this.viewFirstProductButton = page.locator('.choose a').first();
@@ -143,6 +143,7 @@ export class ProductsPage {
   }
 
   async verifyCategoryTitle(title: string) {
+    await expect(this.categoryTitle).toBeVisible({ timeout: 20_000 });
     await expect(this.categoryTitle).toHaveText(title, { ignoreCase: true });
   }
 

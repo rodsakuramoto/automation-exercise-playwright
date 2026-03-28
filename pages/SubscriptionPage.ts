@@ -15,7 +15,7 @@ export class SubscriptionPage {
     this.emailInput = page.locator('#susbscribe_email');
     this.subscribeButton = page.locator('#subscribe');
     this.successMessage = page.getByText('You have been successfully subscribed!');
-    this.cartLink = page.getByRole('link', { name: 'Cart' });
+    this.cartLink = page.locator('.navbar-nav a[href*="view_cart"]').first();
     this.testEmail = 'test_sub@example.com';
   }
 

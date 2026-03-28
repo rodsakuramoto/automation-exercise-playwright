@@ -9,7 +9,7 @@ export class TestCasesPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.testCasesLink = page.getByRole('link', { name: ' Test Cases' });
+    this.testCasesLink = page.locator('.navbar-nav a[href*="test_cases"]').first();
     this.heading = page.getByRole('heading', { name: 'Test Cases', exact: true });
     this.pageDescription = page.getByText('Below is the list of test Cases for you to practice the Automation');
     this.testCasesList = page.getByText('Test Cases Below is the list')

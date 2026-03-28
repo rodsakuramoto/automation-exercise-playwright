@@ -24,7 +24,8 @@ export default defineConfig({
    * per browser job. On GitHub-hosted runners (often 2 cores), the default 50% would
    * stay at 1 worker — use full CPU on CI so suites actually run concurrently.
    */
-  workers: process.env.CI ? '100%' : undefined,
+  // Fewer workers locally reduces load on automationexercise.com (the site returns a "queue full" page under stress).
+  workers: process.env.CI ? '100%' : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [

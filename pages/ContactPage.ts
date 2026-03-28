@@ -15,7 +15,7 @@ export class ContactPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.contactLink = page.getByRole('link', { name: 'Contact us' });
+    this.contactLink = page.locator('.navbar-nav a[href*="contact_us"]').first();
     this.heading = page.getByRole('heading', { name: 'Get In Touch' });
     this.nameInput = page.getByPlaceholder('Name');
     this.emailInput = page.getByPlaceholder('Email', { exact: true });
@@ -24,7 +24,7 @@ export class ContactPage {
     this.uploadFileInput = page.locator('input[name="upload_file"]');
     this.submitButton = page.getByRole('button', { name: 'Submit' });
     this.successMessage = page.locator('.status.alert.alert-success');
-    this.homeLink = page.getByRole('link', { name: ' Home' });
+    this.homeLink = page.locator('.navbar-nav a[href="/"]').first();
   }
 
   async navigateToContact() {
