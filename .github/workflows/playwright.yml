@@ -19,6 +19,9 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
+    - name: Write job summary
+      if: always() && !cancelled()
+      run: node scripts/write-playwright-job-summary.mjs
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
