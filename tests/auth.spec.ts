@@ -30,7 +30,7 @@ test.describe('Registration', () => {
 
     await expect(page.getByText(`Logged in as ${newUser.firstName}`)).toBeVisible();
 
-    await page.getByRole('link', { name: 'Delete Account' }).click();
+    await homePage.clickDeleteAccount();
     await page.locator('[data-qa="continue-button"]').click();
   });
 
@@ -75,7 +75,7 @@ test.describe('Valid Login Scenarios', () => {
 
     await expect(page.getByText(`Logged in as ${validUser.firstName}`)).toBeVisible();
 
-    await page.getByRole('link', { name: ' Delete Account' }).click();
+    await homePage.clickDeleteAccount();
     await expect(page.getByText('Account Deleted!')).toBeVisible();
     await page.locator('[data-qa="continue-button"]').click();
   });

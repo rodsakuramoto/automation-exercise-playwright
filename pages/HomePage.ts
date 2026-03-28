@@ -15,11 +15,12 @@ export class HomePage {
   constructor(page: Page) {
     this.page = page;
     // Mapeamento dos elementos
-    this.signupLoginLink = page.getByRole('link', { name: 'Signup / Login' });
+    // Prefer href / regex: nav links embed Font Awesome glyphs in the accessible name, which varies by browser/OS.
+    this.signupLoginLink = page.locator('.navbar-nav a[href*="/login"]').first();
     this.viewProductButtons = page.locator('.choose a');
-    this.cartLink = page.getByRole('link', { name: ' Cart', exact: true });
-    this.deleteAccountLink = page.getByRole('link', { name: 'Delete Account' });
-    this.logoutLink = page.getByRole('link', { name: 'Logout' });
+    this.cartLink = page.locator('.navbar-nav a[href*="view_cart"]').first();
+    this.deleteAccountLink = page.getByRole('link', { name: /Delete Account/ });
+    this.logoutLink = page.locator('.navbar-nav a[href*="logout"]').first();
     this.recommendedItemsHeading = page.getByRole('heading', { name: 'recommended items' });
     this.firstRecommendedAddToCartButton = page.locator('.recommended_items .add-to-cart').first();
     this.scrollUpButton = page.locator('#scrollUp');
