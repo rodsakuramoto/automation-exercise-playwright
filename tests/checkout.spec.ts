@@ -178,6 +178,9 @@ test.describe('Checkout', () => {
   });
 
   test('Test Case 24: Download Invoice after purchase order', async ({ page, homePage, loginPage, signupPage }) => {
+    // Full checkout + signup + payment + download often runs 25–35s+; CI WebKit can hit the default 30s limit.
+    test.setTimeout(60_000);
+
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
     const checkoutPage = new CheckoutPage(page);
@@ -216,11 +219,15 @@ test.describe('Checkout', () => {
     await paymentPage.clickPayAndConfirm();
     await paymentPage.verifySuccessMessage();
 
-    const downloadPromise = page.waitForEvent('download');
-    await page.waitForTimeout(1000);
-    await paymentPage.clickDownloadInvoice();
-    const download = await downloadPromise;
-    await download.path(); // Wait for download to complete
+    // WebKit often does not emit page.waitForEvent('download') (inline PDF, new tab, or headers). Waiting for a
+    // successful invoice response on the browser context covers download, navigation, and popup cases.
+    await Promise.all([
+      page.context().waitForEvent('response', {
+        predicate: (response) =>
+          /\/download_invoice\//i.test(response.url()) && response.ok(),
+      }),
+      paymentPage.clickDownloadInvoice(),
+    ]);
 
     await paymentPage.clickContinue();
     await homePage.clickDeleteAccount();
