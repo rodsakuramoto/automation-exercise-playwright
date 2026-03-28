@@ -1,3 +1,6 @@
+# One job per browser × spec file (same idea as Robot: test-chromium (suite.robot)).
+# Re-run only failed jobs in the GitHub Actions run UI.
+# When you add a new spec under tests/, add a suite entry below.
 name: Playwright Tests
 on:
   push:
@@ -6,13 +9,28 @@ on:
     branches: [ main, master ]
 jobs:
   test:
-    name: test (${{ matrix.browser }})
+    name: test-${{ matrix.browser }} (${{ matrix.suite.name }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
+        suite:
+          - path: tests/auth.spec.ts
+            name: auth.spec.ts
+          - path: tests/cart.spec.ts
+            name: cart.spec.ts
+          - path: tests/checkout.spec.ts
+            name: checkout.spec.ts
+          - path: tests/contact.spec.ts
+            name: contact.spec.ts
+          - path: tests/products.spec.ts
+            name: products.spec.ts
+          - path: tests/subscription.spec.ts
+            name: subscription.spec.ts
+          - path: tests/ui-navigation.spec.ts
+            name: ui-navigation.spec.ts
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -23,15 +41,15 @@ jobs:
     - name: Install Playwright browser
       run: npx playwright install --with-deps ${{ matrix.browser }}
     - name: Run Playwright tests
-      run: npx playwright test --project=${{ matrix.browser }}
+      run: npx playwright test "${{ matrix.suite.path }}" --project=${{ matrix.browser }}
     - name: Write job summary
       if: always() && !cancelled()
       env:
-        PLAYWRIGHT_SUMMARY_TITLE: Playwright summary (${{ matrix.browser }})
+        PLAYWRIGHT_SUMMARY_TITLE: Playwright summary (${{ matrix.browser }}, ${{ matrix.suite.name }})
       run: node scripts/write-playwright-job-summary.mjs
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report-${{ matrix.browser }}
+        name: playwright-${{ matrix.browser }}-${{ matrix.suite.name }}
         path: playwright-report/
         retention-days: 30
