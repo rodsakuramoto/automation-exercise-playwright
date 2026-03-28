@@ -42,14 +42,43 @@ jobs:
       run: npx playwright install --with-deps ${{ matrix.browser }}
     - name: Run Playwright tests
       run: npx playwright test "${{ matrix.suite.path }}" --project=${{ matrix.browser }}
-    - name: Write job summary
+    - name: Upload JSON report for browser summary
       if: always() && !cancelled()
-      env:
-        PLAYWRIGHT_SUMMARY_TITLE: Playwright summary (${{ matrix.browser }}, ${{ matrix.suite.name }})
-      run: node scripts/write-playwright-job-summary.mjs
+      uses: actions/upload-artifact@v7
+      with:
+        name: playwright-json-${{ matrix.browser }}-${{ matrix.suite.name }}
+        path: test-results/report.json
+        retention-days: 7
+        if-no-files-found: ignore
     - uses: actions/upload-artifact@v7
       if: ${{ !cancelled() }}
       with:
         name: playwright-${{ matrix.browser }}-${{ matrix.suite.name }}
         path: playwright-report/
         retention-days: 30
+
+  # One summary per browser (merges all suite JSON reports from the test job).
+  browser-summary:
+    name: summary (${{ matrix.browser }})
+    needs: test
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: lts/*
+    - name: Download JSON reports for this browser
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        pattern: playwright-json-${{ matrix.browser }}-*
+        path: merged-reports
+    - name: Write browser summary
+      env:
+        PLAYWRIGHT_SUMMARY_TITLE: Playwright summary (${{ matrix.browser }})
+      run: node scripts/write-playwright-job-summary.mjs --dir merged-reports
