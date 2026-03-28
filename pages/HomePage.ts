@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { escapeRegExp } from '../support/helpers';
 
 export class HomePage {
   readonly page: Page;
@@ -29,18 +30,31 @@ export class HomePage {
 
   // Ações (Steps)
   async navigate() {
-    await this.page.goto('https://automationexercise.com/');
+    await this.page.goto('https://automationexercise.com/', {
+      waitUntil: 'load',
+      timeout: 60_000,
+    });
+    // CI and slow networks sometimes leave the title empty until the document settles.
+    await expect(this.page).toHaveTitle(/Automation Exercise/, { timeout: 45_000 });
+    await expect(this.page.locator('#header, header').first()).toBeVisible({ timeout: 30_000 });
   }
 
   async clickSignupLogin() {
+    await expect(this.signupLoginLink).toBeVisible({ timeout: 45_000 });
+    await this.signupLoginLink.scrollIntoViewIfNeeded();
     await this.signupLoginLink.click();
   }
 
   async viewFirstProduct() {
-    await this.viewProductButtons.first().click();
+    const first = this.viewProductButtons.first();
+    await expect(first).toBeVisible({ timeout: 45_000 });
+    await first.scrollIntoViewIfNeeded();
+    await first.click();
   }
 
   async clickCart() {
+    await expect(this.cartLink).toBeVisible({ timeout: 45_000 });
+    await this.cartLink.scrollIntoViewIfNeeded();
     await this.cartLink.click();
   }
 
@@ -49,11 +63,16 @@ export class HomePage {
   }
 
   async clickLogout() {
+    await expect(this.logoutLink).toBeVisible({ timeout: 45_000 });
+    await this.logoutLink.scrollIntoViewIfNeeded();
     await this.logoutLink.click();
   }
 
   async verifyLoggedInAs(username: string) {
-    await expect(this.page.getByText(`Logged in as ${username}`)).toBeVisible();
+    await this.page.waitForLoadState('domcontentloaded');
+    await expect(
+      this.page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(username)}`, 'i'))
+    ).toBeVisible({ timeout: 45_000 });
   }
 
   async verifyRecommendedItemsVisible() {

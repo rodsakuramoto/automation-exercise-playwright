@@ -1,8 +1,6 @@
 import { test, expect } from '../support/fixtures';
 import { ProductsPage } from '../pages/ProductsPage';
 import { CartPage } from '../pages/CartPage';
-import { AccountPage } from '../pages/AccountPage';
-import { generateRandomUser } from '../support/helpers';
 
 test.describe('Cart', () => {
 
@@ -53,6 +51,9 @@ test.describe('Cart', () => {
     await homePage.navigate();
     await expect(page).toHaveTitle(/Automation Exercise/);
 
+    await productsPage.navigateToProducts();
+    await productsPage.verifyAllProductsPageLoaded();
+
     await productsPage.hoverAndAddProduct(0);
     await productsPage.clickContinueShopping();
 
@@ -63,23 +64,11 @@ test.describe('Cart', () => {
     await cartPage.verifyProductRemoved('Blue Top');
   });
 
-  test('Test Case 20: Search Products and Verify Cart After Login', async ({ page, homePage, loginPage, signupPage }) => {
+  test('Test Case 20: Search Products and Verify Cart After Login', async ({ page, homePage, loginPage, registeredUser }) => {
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
-    const accountPage = new AccountPage(page);
-    const user = generateRandomUser();
+    const user = registeredUser;
 
-    // Pre-requisite: Create a user to login with later
-    await homePage.navigate();
-    await homePage.clickSignupLogin();
-    await loginPage.initiateSignup(user.firstName, user.email);
-    await signupPage.fillAccountDetails(user.password);
-    await signupPage.fillAddressDetails(user.firstName, user.lastName, user.company, user.address, user.state, user.city, user.zipcode, user.mobileNumber);
-    await signupPage.submitAccount();
-    await accountPage.clickContinue();
-    await homePage.clickLogout();
-
-    // Test Steps
     await homePage.navigate();
     await productsPage.navigateToProducts();
     await productsPage.verifyAllProductsPageLoaded();
@@ -94,6 +83,7 @@ test.describe('Cart', () => {
 
     await homePage.clickSignupLogin();
     await loginPage.login(user.email, user.password);
+    await homePage.verifyLoggedInAs(user.firstName);
 
     await homePage.clickCart();
     await cartPage.verifyProductInCart('Soft Stretch Jeans', 'Rs. 799', '1', 'Rs. 799');

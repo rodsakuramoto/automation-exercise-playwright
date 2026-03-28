@@ -14,7 +14,7 @@ export class AccountPage {
   }
 
   async verifyAccountCreated() {
-    await expect(this.accountCreatedHeading).toBeVisible();
+    await expect(this.accountCreatedHeading).toBeVisible({ timeout: 45_000 });
   }
 
   async verifyAccountDeleted() {
@@ -24,5 +24,6 @@ export class AccountPage {
   async clickContinue() {
     await this.continueButton.scrollIntoViewIfNeeded();
     await this.continueButton.click({ force: true });
+    await this.page.waitForLoadState('load');
   }
 }

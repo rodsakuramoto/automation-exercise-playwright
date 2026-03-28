@@ -1,4 +1,4 @@
-import { test, expect } from '../support/fixtures';
+import { test } from '../support/fixtures';
 import { SubscriptionPage } from '../pages/SubscriptionPage';
 
 test.describe('Subscription', () => {
@@ -7,7 +7,6 @@ test.describe('Subscription', () => {
     const subscriptionPage = new SubscriptionPage(page);
 
     await homePage.navigate();
-    await expect(page).toHaveTitle(/Automation Exercise/);
 
     await subscriptionPage.verifySubscriptionVisible();
     await subscriptionPage.subscribe(subscriptionPage.testEmail);
@@ -18,7 +17,6 @@ test.describe('Subscription', () => {
     const subscriptionPage = new SubscriptionPage(page);
 
     await homePage.navigate();
-    await expect(page).toHaveTitle(/Automation Exercise/);
 
     await subscriptionPage.navigateToCart();
 

@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
@@ -37,9 +37,14 @@ export class LoginPage {
 
   // Ações Signup
   async initiateSignup(name: string, email: string) {
+    await expect(this.signupNameInput).toBeVisible({ timeout: 45_000 });
     await this.signupNameInput.fill(name);
     await this.signupEmailInput.fill(email);
     await this.signupButton.click();
+    // Either the account form opens or the site rejects a duplicate email (stays on step 1).
+    await expect(
+      this.page.locator('[data-qa="password"]').or(this.signupErrorMessage)
+    ).toBeVisible({ timeout: 60_000 });
   }
 
   // Ações Login

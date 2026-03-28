@@ -44,14 +44,20 @@ export class ProductsPage {
     this.searchInput = page.locator('#search_product');
     this.searchButton = page.locator('#submit_search');
     this.searchedProductsHeading = page.getByRole('heading', { name: 'Searched Products' });
-    this.continueShoppingButton = page.getByRole('button', { name: 'Continue Shopping' });
+    // Modal markup varies; prefer cart modal button, then accessible name.
+    this.continueShoppingButton = page
+      .locator('#cartModal')
+      .getByRole('button', { name: /Continue Shopping/i })
+      .or(page.getByRole('button', { name: /Continue Shopping/i }))
+      .first();
     this.viewCartLink = page.getByRole('link', { name: 'View Cart' });
     this.quantityInput = page.locator('#quantity');
     this.addToCartButton = page.getByRole('button', { name: 'Add to cart' });
     this.categoriesSidebar = page.locator('#accordian');
     this.brandsSidebar = page.locator('.brands_products');
     this.categoryTitle = page.locator('.features_items .title');
-    this.reviewHeading = page.getByRole('link', { name: 'Write Your Review' });
+    // Tab control is not always exposed as link + accessible name consistently (e.g. Chromium vs Firefox).
+    this.reviewHeading = page.getByText('Write Your Review', { exact: true });
     this.reviewNameInput = page.locator('#name');
     this.reviewEmailInput = page.locator('#email');
     this.reviewInput = page.locator('#review');
@@ -64,8 +70,8 @@ export class ProductsPage {
   }
 
   async verifyAllProductsPageLoaded() {
-    await expect(this.allProductsHeading).toBeVisible();
-    await expect(this.productsList).toBeVisible();
+    await expect(this.allProductsHeading).toBeVisible({ timeout: 45_000 });
+    await expect(this.productsList).toBeVisible({ timeout: 45_000 });
   }
 
   async viewFirstProduct() {
@@ -92,12 +98,18 @@ export class ProductsPage {
   }
 
   async hoverAndAddProduct(index: number) {
+    await expect(this.productsList).toBeVisible({ timeout: 45_000 });
     const productCard = this.productsList.locator('.col-sm-4').nth(index);
+    await expect(productCard).toBeVisible({ timeout: 45_000 });
+    await productCard.scrollIntoViewIfNeeded();
     await productCard.hover();
-    await productCard.locator('.product-overlay .add-to-cart').click();
+    const addToCart = productCard.locator('.product-overlay .add-to-cart');
+    await expect(addToCart).toBeVisible({ timeout: 15_000 });
+    await addToCart.click();
   }
 
   async clickContinueShopping() {
+    await expect(this.continueShoppingButton).toBeVisible({ timeout: 45_000 });
     await this.continueShoppingButton.click();
   }
 
@@ -106,6 +118,8 @@ export class ProductsPage {
   }
 
   async setQuantity(quantity: string) {
+    await expect(this.quantityInput).toBeVisible({ timeout: 45_000 });
+    await this.quantityInput.scrollIntoViewIfNeeded();
     await this.quantityInput.fill(quantity);
   }
 
@@ -164,7 +178,8 @@ export class ProductsPage {
   }
 
   async verifyReviewSectionVisible() {
-    await expect(this.reviewHeading).toBeVisible();
+    await this.reviewHeading.scrollIntoViewIfNeeded();
+    await expect(this.reviewHeading).toBeVisible({ timeout: 45_000 });
   }
 
   async submitReview(name: string, email: string, review: string) {
