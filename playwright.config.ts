@@ -19,8 +19,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /*
+   * Parallelize across spec files (and individual tests when safe): multiple workers
+   * per browser job. On GitHub-hosted runners (often 2 cores), the default 50% would
+   * stay at 1 worker — use full CPU on CI so suites actually run concurrently.
+   */
+  workers: process.env.CI ? '100%' : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [
