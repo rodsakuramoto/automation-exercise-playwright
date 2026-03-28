@@ -11,23 +11,22 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const isCI = !!process.env.CI;
+
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /*
-   * Parallelize across spec files (and individual tests when safe): multiple workers
-   * per browser job. On GitHub-hosted runners (often 2 cores), the default 50% would
-   * stay at 1 worker — use full CPU on CI so suites actually run concurrently.
-   */
-  // Fewer workers locally reduces load on automationexercise.com (the site returns a "queue full" page under stress).
-  workers: process.env.CI ? '100%' : 4,
+  retries: isCI ? 2 : 0,
+  /* automationexercise.com throttles under load (empty title, timeouts). Keep CI gentle. */
+  workers: isCI ? 2 : 4,
+  timeout: isCI ? 90_000 : 60_000,
+  expect: { timeout: isCI ? 20_000 : 5_000 },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI
+  reporter: isCI
     ? [
         ['html'],
         ['github'],
@@ -41,6 +40,10 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    ...(isCI && {
+      actionTimeout: 45_000,
+      navigationTimeout: 60_000,
+    }),
   },
 
   /* Configure projects for major browsers */

@@ -47,10 +47,14 @@ export const test = baseTest.extend<MyFixtures>({
 
     await expect(page.getByText('Account Created!')).toBeVisible();
     await page.locator('[data-qa="continue-button"]').click();
+    await page.waitForLoadState('load');
     await expect(
       page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(user.firstName)}`, 'i'))
-    ).toBeVisible({ timeout: 20_000 });
-    await homePage.clickLogout();
+    ).toBeVisible({ timeout: 45_000 });
+    await Promise.all([
+      page.waitForURL(/login/i, { timeout: 45_000 }),
+      homePage.clickLogout(),
+    ]);
 
     await use(user);
   },

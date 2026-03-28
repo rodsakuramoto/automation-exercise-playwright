@@ -28,7 +28,9 @@ test.describe('Registration', () => {
     await expect(page.getByText('Account Created!')).toBeVisible();
     await page.locator('[data-qa="continue-button"]').click();
 
-    await expect(page.getByText(`Logged in as ${newUser.firstName}`)).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(newUser.firstName)}`, 'i'))
+    ).toBeVisible({ timeout: 45_000 });
 
     await homePage.clickDeleteAccount();
     await page.locator('[data-qa="continue-button"]').click();
@@ -67,8 +69,10 @@ test.describe('Valid Login Scenarios', () => {
       page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(registeredUser.firstName)}`, 'i'))
     ).toBeVisible({ timeout: 20_000 });
 
-    await homePage.clickLogout();
-    await expect(page).toHaveURL(/login/, { timeout: 20_000 });
+    await Promise.all([
+      page.waitForURL(/login/i, { timeout: 45_000 }),
+      homePage.clickLogout(),
+    ]);
     await expect(page.getByText('Login to your account')).toBeVisible();
   });
 

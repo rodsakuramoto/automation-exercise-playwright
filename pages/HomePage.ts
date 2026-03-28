@@ -35,18 +35,26 @@ export class HomePage {
       timeout: 60_000,
     });
     // CI and slow networks sometimes leave the title empty until the document settles.
-    await expect(this.page).toHaveTitle(/Automation Exercise/, { timeout: 30_000 });
+    await expect(this.page).toHaveTitle(/Automation Exercise/, { timeout: 45_000 });
+    await expect(this.page.locator('#header, header').first()).toBeVisible({ timeout: 30_000 });
   }
 
   async clickSignupLogin() {
+    await expect(this.signupLoginLink).toBeVisible({ timeout: 45_000 });
+    await this.signupLoginLink.scrollIntoViewIfNeeded();
     await this.signupLoginLink.click();
   }
 
   async viewFirstProduct() {
-    await this.viewProductButtons.first().click();
+    const first = this.viewProductButtons.first();
+    await expect(first).toBeVisible({ timeout: 45_000 });
+    await first.scrollIntoViewIfNeeded();
+    await first.click();
   }
 
   async clickCart() {
+    await expect(this.cartLink).toBeVisible({ timeout: 45_000 });
+    await this.cartLink.scrollIntoViewIfNeeded();
     await this.cartLink.click();
   }
 
@@ -55,6 +63,8 @@ export class HomePage {
   }
 
   async clickLogout() {
+    await expect(this.logoutLink).toBeVisible({ timeout: 45_000 });
+    await this.logoutLink.scrollIntoViewIfNeeded();
     await this.logoutLink.click();
   }
 
