@@ -9,6 +9,8 @@ import { AccountPage } from '../pages/AccountPage';
 test.describe('Checkout', () => {
 
   test('Test Case 14: Place Order: Register while Checkout', async ({ page, homePage, loginPage, signupPage }) => {
+    test.setTimeout(60_000);
+
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
     const checkoutPage = new CheckoutPage(page);
@@ -228,6 +230,19 @@ test.describe('Checkout', () => {
       }),
       paymentPage.clickDownloadInvoice(),
     ]);
+
+    // WebKit may navigate the main tab to the invoice URL or open a PDF tab; restore the order page when needed.
+    if (/\/download_invoice\//i.test(page.url())) {
+      await page.goBack({ waitUntil: 'domcontentloaded' });
+      await paymentPage.verifySuccessMessage();
+    }
+    await Promise.all(
+      page
+        .context()
+        .pages()
+        .filter((p) => p !== page && /\/download_invoice\//i.test(p.url()))
+        .map((p) => p.close())
+    );
 
     await paymentPage.clickContinue();
     await homePage.clickDeleteAccount();

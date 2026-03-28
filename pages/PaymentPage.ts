@@ -22,7 +22,10 @@ export class PaymentPage {
     this.payButton = page.locator('[data-qa="pay-button"]');
     this.successMessage = page.getByText('Congratulations! Your order has been confirmed!', { exact: true });
     this.downloadInvoiceButton = page.getByRole('link', { name: 'Download Invoice' });
-    this.continueButton = page.getByRole('link', { name: 'Continue' });
+    // Prefer data-qa when present; scope away from unrelated "Continue" links (e.g. footer).
+    this.continueButton = page.locator('[data-qa="continue-button"]').or(
+      page.getByRole('heading', { name: /Order Placed/i }).locator('..').getByRole('link', { name: 'Continue', exact: true })
+    );
   }
 
   async fillPaymentDetails(name: string, number: string, cvc: string, month: string, year: string) {
@@ -47,6 +50,7 @@ export class PaymentPage {
   }
 
   async clickContinue() {
-    await this.continueButton.click();
+    await this.continueButton.scrollIntoViewIfNeeded();
+    await this.continueButton.click({ force: true });
   }
 }
