@@ -51,6 +51,9 @@ test.describe('Cart', () => {
     await homePage.navigate();
     await expect(page).toHaveTitle(/Automation Exercise/);
 
+    await productsPage.navigateToProducts();
+    await productsPage.verifyAllProductsPageLoaded();
+
     await productsPage.hoverAndAddProduct(0);
     await productsPage.clickContinueShopping();
 
@@ -80,6 +83,7 @@ test.describe('Cart', () => {
 
     await homePage.clickSignupLogin();
     await loginPage.login(user.email, user.password);
+    await homePage.verifyLoggedInAs(user.firstName);
 
     await homePage.clickCart();
     await cartPage.verifyProductInCart('Soft Stretch Jeans', 'Rs. 799', '1', 'Rs. 799');

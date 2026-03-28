@@ -2,6 +2,11 @@ import { faker } from '@faker-js/faker';
 
 export type TestUser = ReturnType<typeof generateRandomUser>;
 
+/** Safe interpolation of user-provided strings into RegExp. */
+export function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function generateRandomUser() {
   // automationexercise.com rejects duplicate emails; parallel workers + faker can rarely collide.
   const unique = `${Date.now()}-${faker.string.alphanumeric(10)}`;

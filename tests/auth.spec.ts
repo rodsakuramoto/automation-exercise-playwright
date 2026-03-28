@@ -1,5 +1,5 @@
 import { test, expect } from '../support/fixtures';
-import { generateRandomUser } from '../support/helpers';
+import { generateRandomUser, escapeRegExp } from '../support/helpers';
 
 test.describe('Registration', () => {
 
@@ -46,8 +46,9 @@ test.describe('Valid Login Scenarios', () => {
     await expect(page.getByText('Login to your account')).toBeVisible();
 
     await loginPage.login(registeredUser.email, registeredUser.password);
-
-    await expect(page.getByText(`Logged in as ${registeredUser.firstName}`)).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(registeredUser.firstName)}`, 'i'))
+    ).toBeVisible({ timeout: 20_000 });
 
     await homePage.clickDeleteAccount();
     await expect(page.getByText('Account Deleted!')).toBeVisible();
@@ -62,11 +63,12 @@ test.describe('Valid Login Scenarios', () => {
     await expect(page.getByText('Login to your account')).toBeVisible();
 
     await loginPage.login(registeredUser.email, registeredUser.password);
+    await expect(
+      page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(registeredUser.firstName)}`, 'i'))
+    ).toBeVisible({ timeout: 20_000 });
 
-    await expect(page.getByText(`Logged in as ${registeredUser.firstName}`)).toBeVisible();
-
-    await page.getByRole('link', { name: 'Logout' }).click();
-    await expect(page).toHaveURL(/.*login/);
+    await homePage.clickLogout();
+    await expect(page).toHaveURL(/login/, { timeout: 20_000 });
     await expect(page.getByText('Login to your account')).toBeVisible();
   });
 

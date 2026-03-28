@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { escapeRegExp } from '../support/helpers';
 
 export class HomePage {
   readonly page: Page;
@@ -29,7 +30,12 @@ export class HomePage {
 
   // Ações (Steps)
   async navigate() {
-    await this.page.goto('https://automationexercise.com/');
+    await this.page.goto('https://automationexercise.com/', {
+      waitUntil: 'load',
+      timeout: 60_000,
+    });
+    // CI and slow networks sometimes leave the title empty until the document settles.
+    await expect(this.page).toHaveTitle(/Automation Exercise/, { timeout: 30_000 });
   }
 
   async clickSignupLogin() {
@@ -53,7 +59,9 @@ export class HomePage {
   }
 
   async verifyLoggedInAs(username: string) {
-    await expect(this.page.getByText(`Logged in as ${username}`)).toBeVisible();
+    await expect(
+      this.page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(username)}`, 'i'))
+    ).toBeVisible({ timeout: 20_000 });
   }
 
   async verifyRecommendedItemsVisible() {

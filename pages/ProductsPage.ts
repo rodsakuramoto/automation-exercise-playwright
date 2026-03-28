@@ -51,7 +51,8 @@ export class ProductsPage {
     this.categoriesSidebar = page.locator('#accordian');
     this.brandsSidebar = page.locator('.brands_products');
     this.categoryTitle = page.locator('.features_items .title');
-    this.reviewHeading = page.getByRole('link', { name: 'Write Your Review' });
+    // Tab control is not always exposed as link + accessible name consistently (e.g. Chromium vs Firefox).
+    this.reviewHeading = page.getByText('Write Your Review', { exact: true });
     this.reviewNameInput = page.locator('#name');
     this.reviewEmailInput = page.locator('#email');
     this.reviewInput = page.locator('#review');
@@ -64,8 +65,8 @@ export class ProductsPage {
   }
 
   async verifyAllProductsPageLoaded() {
-    await expect(this.allProductsHeading).toBeVisible();
-    await expect(this.productsList).toBeVisible();
+    await expect(this.allProductsHeading).toBeVisible({ timeout: 20_000 });
+    await expect(this.productsList).toBeVisible({ timeout: 20_000 });
   }
 
   async viewFirstProduct() {
@@ -164,7 +165,8 @@ export class ProductsPage {
   }
 
   async verifyReviewSectionVisible() {
-    await expect(this.reviewHeading).toBeVisible();
+    await this.reviewHeading.scrollIntoViewIfNeeded();
+    await expect(this.reviewHeading).toBeVisible({ timeout: 15_000 });
   }
 
   async submitReview(name: string, email: string, review: string) {

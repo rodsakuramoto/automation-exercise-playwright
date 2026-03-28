@@ -2,7 +2,7 @@ import { test as baseTest, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { SignupPage } from '../pages/SignupPage';
-import { generateRandomUser, type TestUser } from './helpers';
+import { generateRandomUser, escapeRegExp, type TestUser } from './helpers';
 
 type MyFixtures = {
   homePage: HomePage;
@@ -47,7 +47,9 @@ export const test = baseTest.extend<MyFixtures>({
 
     await expect(page.getByText('Account Created!')).toBeVisible();
     await page.locator('[data-qa="continue-button"]').click();
-    await expect(page.getByText(`Logged in as ${user.firstName}`)).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(user.firstName)}`, 'i'))
+    ).toBeVisible({ timeout: 20_000 });
     await homePage.clickLogout();
 
     await use(user);
