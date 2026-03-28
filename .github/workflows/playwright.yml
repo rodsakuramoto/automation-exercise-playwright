@@ -1,4 +1,4 @@
-# One job per browser × spec file (same idea as Robot: test-chromium (suite.robot)).
+# One job per browser × spec file (same idea as Robot: chromium (suite.robot)).
 # Re-run only failed jobs in the GitHub Actions run UI.
 # When you add a new spec under tests/, add a suite entry below.
 name: Playwright Tests
@@ -9,7 +9,7 @@ on:
     branches: [ main, master ]
 jobs:
   test:
-    name: test-${{ matrix.browser }} (${{ matrix.suite.name }})
+    name: ${{ matrix.browser }} (${{ matrix.suite.name }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
