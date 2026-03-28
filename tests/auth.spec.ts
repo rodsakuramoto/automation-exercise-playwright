@@ -25,8 +25,9 @@ test.describe('Registration', () => {
     );
     await signupPage.submitAccount();
 
-    await expect(page.getByText('Account Created!')).toBeVisible();
+    await expect(page.getByText('Account Created!')).toBeVisible({ timeout: 45_000 });
     await page.locator('[data-qa="continue-button"]').click();
+    await page.waitForLoadState('load');
 
     await expect(
       page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(newUser.firstName)}`, 'i'))

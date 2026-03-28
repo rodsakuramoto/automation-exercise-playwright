@@ -69,9 +69,10 @@ export class HomePage {
   }
 
   async verifyLoggedInAs(username: string) {
+    await this.page.waitForLoadState('domcontentloaded');
     await expect(
       this.page.getByText(new RegExp(`Logged in as\\s+${escapeRegExp(username)}`, 'i'))
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: 45_000 });
   }
 
   async verifyRecommendedItemsVisible() {

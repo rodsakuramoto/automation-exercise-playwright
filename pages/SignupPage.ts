@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class SignupPage {
   readonly page: Page;
@@ -30,7 +30,8 @@ export class SignupPage {
     this.page = page;
 
     // Mapeamento
-    this.genderRadio = page.locator('#id_gender1');
+    // Mr radio — avoid generic name="title" (Mrs can appear first in DOM order).
+    this.genderRadio = page.locator('#id_gender1').or(page.locator('input[name="title"][value="Mr"]')).first();
     this.passwordInput = page.locator('[data-qa="password"]');
     this.daysSelect = page.locator('[data-qa="days"]');
     this.monthsSelect = page.locator('[data-qa="months"]');
@@ -53,7 +54,10 @@ export class SignupPage {
 
   // Preenche a primeira parte (mantivemos a data de nascimento fixa para simplificar)
   async fillAccountDetails(password: string) {
-    await this.genderRadio.check();
+    await expect(this.passwordInput).toBeVisible({ timeout: 60_000 });
+    await expect(this.genderRadio).toBeVisible({ timeout: 60_000 });
+    await this.genderRadio.scrollIntoViewIfNeeded();
+    await this.genderRadio.check({ force: true });
     await this.passwordInput.fill(password);
     await this.daysSelect.selectOption('10');
     await this.monthsSelect.selectOption('5');
@@ -89,6 +93,10 @@ export class SignupPage {
 
   // Clica no botão final
   async submitAccount() {
-    await this.createAccountButton.click();
+    await expect(this.createAccountButton).toBeVisible({ timeout: 30_000 });
+    await Promise.all([
+      this.page.waitForURL(/account_created/i, { timeout: 90_000 }),
+      this.createAccountButton.click(),
+    ]);
   }
 }

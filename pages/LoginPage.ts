@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
@@ -37,9 +37,12 @@ export class LoginPage {
 
   // Ações Signup
   async initiateSignup(name: string, email: string) {
+    await expect(this.signupNameInput).toBeVisible({ timeout: 45_000 });
     await this.signupNameInput.fill(name);
     await this.signupEmailInput.fill(email);
     await this.signupButton.click();
+    // Full signup step loads the password field (works from /login and from checkout modal).
+    await expect(this.page.locator('[data-qa="password"]')).toBeVisible({ timeout: 60_000 });
   }
 
   // Ações Login
