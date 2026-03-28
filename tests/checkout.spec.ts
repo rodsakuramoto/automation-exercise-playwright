@@ -99,25 +99,14 @@ test.describe('Checkout', () => {
     await accountPage.clickContinue();
   });
 
-  test('Test Case 16: Place Order: Login before Checkout', async ({ page, homePage, loginPage, signupPage }) => {
+  test('Test Case 16: Place Order: Login before Checkout', async ({ page, homePage, loginPage, registeredUser }) => {
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
     const checkoutPage = new CheckoutPage(page);
     const paymentPage = new PaymentPage(page);
     const accountPage = new AccountPage(page);
-    const user = generateRandomUser();
+    const user = registeredUser;
 
-    // Pre-requisite: Create a user to login with
-    await homePage.navigate();
-    await homePage.clickSignupLogin();
-    await loginPage.initiateSignup(user.firstName, user.email);
-    await signupPage.fillAccountDetails(user.password);
-    await signupPage.fillAddressDetails(user.firstName, user.lastName, user.company, user.address, user.state, user.city, user.zipcode, user.mobileNumber);
-    await signupPage.submitAccount();
-    await accountPage.clickContinue();
-    await homePage.clickLogout();
-
-    // Actual Test Steps
     await homePage.navigate();
     await expect(page).toHaveTitle(/Automation Exercise/);
     await homePage.clickSignupLogin();

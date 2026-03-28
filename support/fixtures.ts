@@ -1,12 +1,15 @@
-import { test as baseTest } from '@playwright/test';
+import { test as baseTest, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { SignupPage } from '../pages/SignupPage';
+import { generateRandomUser, type TestUser } from './helpers';
 
 type MyFixtures = {
   homePage: HomePage;
   loginPage: LoginPage;
   signupPage: SignupPage;
+  /** User registered on the site and then logged out (for login / existing-email flows). */
+  registeredUser: TestUser;
   blockAds: void;
 };
 
@@ -21,6 +24,33 @@ export const test = baseTest.extend<MyFixtures>({
 
   signupPage: async ({ page }, use) => {
     await use(new SignupPage(page));
+  },
+
+  registeredUser: async ({ page, homePage, loginPage, signupPage }, use) => {
+    const user = generateRandomUser();
+
+    await homePage.navigate();
+    await homePage.clickSignupLogin();
+    await loginPage.initiateSignup(user.firstName, user.email);
+    await signupPage.fillAccountDetails(user.password);
+    await signupPage.fillAddressDetails(
+      user.firstName,
+      user.lastName,
+      user.company,
+      user.address,
+      user.state,
+      user.city,
+      user.zipcode,
+      user.mobileNumber
+    );
+    await signupPage.submitAccount();
+
+    await expect(page.getByText('Account Created!')).toBeVisible();
+    await page.locator('[data-qa="continue-button"]').click();
+    await expect(page.getByText(`Logged in as ${user.firstName}`)).toBeVisible();
+    await homePage.clickLogout();
+
+    await use(user);
   },
 
   blockAds: [async ({ page }, use) => {

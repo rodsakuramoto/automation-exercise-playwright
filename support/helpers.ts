@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker';
 
+export type TestUser = ReturnType<typeof generateRandomUser>;
+
 export function generateRandomUser() {
   // automationexercise.com rejects duplicate emails; parallel workers + faker can rarely collide.
   const unique = `${Date.now()}-${faker.string.alphanumeric(10)}`;
