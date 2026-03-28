@@ -1,3 +1,15 @@
+# One job per browser × spec file (same idea as Robot: chromium (suite.robot)).
+
+# Re-run only failed jobs in the GitHub Actions run UI.
+
+# When you add a new spec under tests/, add a suite entry below.
+
+#
+
+# Intermediate artifacts (playwright-html-*, playwright-json-*) are consumed by
+
+# browser-bundle; the published artifact per browser is playwright-<browser>.
+
 name: Playwright Tests
 on:
   push:
@@ -6,22 +18,121 @@ on:
     branches: [ main, master ]
 jobs:
   test:
+    name: ${{ matrix.browser }} (${{ matrix.suite.name }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        suite:
+          - path: tests/auth.spec.ts
+            name: auth.spec.ts
+          - path: tests/cart.spec.ts
+            name: cart.spec.ts
+          - path: tests/checkout.spec.ts
+            name: checkout.spec.ts
+          - path: tests/contact.spec.ts
+            name: contact.spec.ts
+          - path: tests/products.spec.ts
+            name: products.spec.ts
+          - path: tests/subscription.spec.ts
+            name: subscription.spec.ts
+          - path: tests/ui-navigation.spec.ts
+            name: ui-navigation.spec.ts
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with:
         node-version: lts/*
     - name: Install dependencies
       run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+    - name: Install Playwright browser
+      run: npx playwright install --with-deps ${{ matrix.browser }}
     - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+      run: npx playwright test "${{ matrix.suite.path }}" --project=${{ matrix.browser }}
+    - name: Upload JSON report (intermediate)
+      if: always() && !cancelled()
+      uses: actions/upload-artifact@v7
       with:
-        name: playwright-report
+        name: playwright-json-${{ matrix.browser }}-${{ matrix.suite.name }}
+        path: test-results/report.json
+        retention-days: 3
+        if-no-files-found: ignore
+    - name: Upload HTML report (intermediate)
+      if: always() && !cancelled()
+      uses: actions/upload-artifact@v7
+      with:
+        name: playwright-html-${{ matrix.browser }}-${{ matrix.suite.name }}
         path: playwright-report/
+        retention-days: 3
+        if-no-files-found: ignore
+
+  # One summary + one artifact zip per browser (html/<suite>/..., json/<suite>/report.json).
+  browser-bundle:
+    name: bundle (${{ matrix.browser }})
+    needs: test
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: lts/*
+    - name: Download JSON reports
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        pattern: playwright-json-${{ matrix.browser }}-*
+        path: _json
+    - name: Write browser summary
+      env:
+        PLAYWRIGHT_SUMMARY_TITLE: Playwright summary (${{ matrix.browser }})
+      run: node scripts/write-playwright-job-summary.mjs --dir _json
+    - name: Download HTML reports
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        pattern: playwright-html-${{ matrix.browser }}-*
+        path: _html
+    - name: Assemble bundle
+      shell: bash
+      env:
+        BROWSER: ${{ matrix.browser }}
+      run: |
+        set -euo pipefail
+        mkdir -p bundle/html bundle/json
+        if [ -d "_html" ]; then
+          shopt -s nullglob
+          for d in _html/playwright-html-${BROWSER}-*/; do
+            [ -d "$d" ] || continue
+            base=$(basename "$d")
+            suite=${base#playwright-html-${BROWSER}-}
+            mkdir -p "bundle/html/${suite}"
+            cp -a "${d}/." "bundle/html/${suite}/"
+          done
+        fi
+        if [ -d "_json" ]; then
+          shopt -s nullglob
+          for d in _json/playwright-json-${BROWSER}-*/; do
+            [ -d "$d" ] || continue
+            base=$(basename "$d")
+            suite=${base#playwright-json-${BROWSER}-}
+            mkdir -p "bundle/json/${suite}"
+            if [ -f "${d}/report.json" ]; then
+              cp -a "${d}/report.json" "bundle/json/${suite}/"
+            fi
+          done
+        fi
+    - name: Upload browser bundle
+      if: always() && !cancelled()
+      uses: actions/upload-artifact@v7
+      with:
+        name: playwright-${{ matrix.browser }}
+        path: bundle/
         retention-days: 30
+        if-no-files-found: ignore
