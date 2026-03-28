@@ -41,8 +41,10 @@ export class LoginPage {
     await this.signupNameInput.fill(name);
     await this.signupEmailInput.fill(email);
     await this.signupButton.click();
-    // Full signup step loads the password field (works from /login and from checkout modal).
-    await expect(this.page.locator('[data-qa="password"]')).toBeVisible({ timeout: 60_000 });
+    // Either the account form opens or the site rejects a duplicate email (stays on step 1).
+    await expect(
+      this.page.locator('[data-qa="password"]').or(this.signupErrorMessage)
+    ).toBeVisible({ timeout: 60_000 });
   }
 
   // Ações Login
